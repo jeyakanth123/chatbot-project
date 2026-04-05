@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+ <style>
+body {
+    font-family: Arial;
+    background: #ece5dd;
+}
+
+h2 {
+    text-align: center;
+}
+
+#chatBox {
+    width: 350px;
+    height: 500px;
+    margin: auto;
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    overflow-y: auto;
+    box-shadow: 0 0 10px gray;
+}
+
+.user {
+    text-align: right;
+    margin: 10px;
+}
+
+.user::after {
+    content: attr(data-text);
+}
+
+.user {
+    background: #dcf8c6;
+    padding: 8px 12px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.bot {
+    text-align: left;
+    margin: 10px;
+    background: #f1f0f0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+input {
+    width: 250px;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid gray;
+    margin: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: none;
+    background: #25d366;
+    color: white;
+    cursor: pointer;
+}
+.dark {
+    background: #111;
+    color: white;
+}
+
+.dark #chatBox {
+    background: #222;
+}
+
+.dark .user {
+    background: #056162;
+    color: white;
+}
+
+.dark .bot {
+    background: #262d31;
+    color: white;
+}
+</style>
+</head>
+<body>
+
+<h2>Chatbot 💬</h2>
+
+<div id="chatBox"></div>
+
+<div style="text-align:center;">
+    <input type="text" id="msg" placeholder="Type message">
+    <button onclick="send()">Send</button>
+     <br><br>
+    <button onclick="clearChat()">Clear Chat 🗑️</button>
+    <button onclick="toggleDark()">🌙 Dark Mode</button>
+</div>
+
+<script>
+window.onload = function() {
+    fetch("/history")
+    .then(res => res.json())
+    .then(data => {
+        data.forEach(chat => {
+
+            let userMsg = document.createElement("div");
+            userMsg.className = "user";
+            userMsg.innerText = chat.userMessage;
+
+            let botMsg = document.createElement("div");
+            botMsg.className = "bot";
+            botMsg.innerText = chat.botReply;
+
+            document.getElementById("chatBox").appendChild(userMsg);
+            document.getElementById("chatBox").appendChild(botMsg);
+        });
+
+        document.getElementById("chatBox").scrollTop =
+            document.getElementById("chatBox").scrollHeight;
+    });
+}
+function send(){
+    let input = document.getElementById("msg");
+    let msg = input.value;
+
+    if(msg.trim() === "") return;
+
+    // show user message
+    let userMsg = document.createElement("div");
+    userMsg.className = "user";
+    userMsg.innerText = msg;
+    document.getElementById("chatBox").appendChild(userMsg);
+
+    fetch("/chat?message=" + msg)
+    .then(res => res.text())
+    .then(data => {
+        let botMsg = document.createElement("div");
+        botMsg.className = "bot";
+        botMsg.innerText = data;
+        document.getElementById("chatBox").appendChild(botMsg);
+
+        // auto scroll
+        document.getElementById("chatBox").scrollTop =
+            document.getElementById("chatBox").scrollHeight;
+    });
+
+    // clear input box
+    input.value = "";
+}
+function clearChat(){
+    fetch("/clear", { method: "DELETE" })
+    .then(res => res.text())
+    .then(data => {
+        document.getElementById("chatBox").innerHTML = "";
+        alert(data);
+    });
+}
+function toggleDark(){
+    document.body.classList.toggle("dark");
+}
+document.getElementById("msg").addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+        send();
+    }
+});
+</script>
+
+</body>
+</html>
