@@ -2,10 +2,12 @@
 package com.chatbot.chatbot;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 public class ChatController {
@@ -14,7 +16,7 @@ public class ChatController {
     ChatRepository repo; // 🔥 DB connect
 
     @GetMapping("/chat")
-    public String chat(@RequestParam String message) {
+    public String chat(@RequestParam String message,@RequestParam int userId) {
 
         String msg = message.toLowerCase();
         String reply;
@@ -53,14 +55,15 @@ public class ChatController {
         ChatLog log = new ChatLog();
         log.setUserMessage(msg);
         log.setBotReply(reply);
+        log.setUserId(userId);
 
         repo.save(log);
 
         return reply;
     }
     @GetMapping("/history")
-    public java.util.List<ChatLog> getHistory() {
-        return repo.findAll();
+    public java.util.List<ChatLog> getHistory(@RequestParam int userId) {
+    	return repo.findByUserId(userId);
     }
     @DeleteMapping("/clear")   // ✅ FINAL
     public String clearChat() {

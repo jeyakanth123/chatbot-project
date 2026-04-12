@@ -86,19 +86,25 @@ button {
 </head>
 <body>
 
-<h2>Chatbot 💬</h2>
+<h2>Chatbot </h2>
 
 <div id="chatBox"></div>
 
 <div style="text-align:center;">
     <input type="text" id="msg" placeholder="Type message">
     <button onclick="send()">Send</button>
+    <br><br>
+    <button onclick="logout()">Logout </button>
      <br><br>
-    <button onclick="clearChat()">Clear Chat 🗑️</button>
-    <button onclick="toggleDark()">🌙 Dark Mode</button>
+    <button onclick="clearChat()">Clear Chat </button>
+    <button onclick="toggleDark()"> Dark Mode</button>
 </div>
 
 <script>
+//🔐 CHECK LOGIN
+if(localStorage.getItem("loggedIn") !== "true"){
+    window.location.href = "login.html";
+}
 window.onload = function() {
     fetch("/history")
     .then(res => res.json())
@@ -133,7 +139,9 @@ function send(){
     userMsg.innerText = msg;
     document.getElementById("chatBox").appendChild(userMsg);
 
-    fetch("/chat?message=" + msg)
+    let userId = localStorage.getItem("userId");
+
+    fetch(`/chat?message=${msg}&userId=${userId}`)
     .then(res => res.text())
     .then(data => {
         let botMsg = document.createElement("div");
@@ -165,6 +173,10 @@ document.getElementById("msg").addEventListener("keypress", function(e){
         send();
     }
 });
+function logout(){
+    localStorage.removeItem("loggedIn");
+    window.location.href = "login.html";
+}
 </script>
 
 </body>

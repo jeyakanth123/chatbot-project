@@ -13,7 +13,10 @@ public class ChatLog {
 
     @Column(name = "user_message")
     private String userMessage;
-
+    
+    @Column(name = "user_id")
+    private int userId;
+    
     @Column(name = "bot_reply")
     private String botReply;
       
@@ -33,6 +36,12 @@ public class ChatLog {
     public void setUserMessage(String userMessage) {
         this.userMessage = userMessage;
     }
+    public int getUserId() { 
+    	return userId; 
+    	}
+    public void setUserId(int userId) { 
+    	this.userId = userId; 
+    	}
 
     public String getBotReply() {
         return botReply;
@@ -44,4 +53,5 @@ public class ChatLog {
     public java.sql.Timestamp getCreatedAt() {
         return createdAt;
     }
+    
 }
